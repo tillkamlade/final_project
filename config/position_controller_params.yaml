@@ -1,0 +1,5 @@
+/**: # wildcard for the node name
+  ros__parameters:
+    K_P: [1.0, 1.0, 1.0] # [K_P_x, K_P_y, K_P_z]
+    K_I: [0.0, 0.0, 0.0] # [K_I_x, K_I_y, K_I_z]
+    K_D: [0.5, 0.5, 0.5] # [K_D_x, K_D_y, K_D_z]
