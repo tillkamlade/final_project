@@ -204,18 +204,29 @@ class PathPlanner(Node):
         # q = quaternion_from_euler(0.0, 0.0, yaw1)
         # orientations[-1] = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
 
-        # new start
-        for i, points in enumerate(points_3d[:-1]):
-            x1, y1 = points_3d[i].x, points_3d[i].y
-            x2, y2 = points_3d[i+1].x, points_3d[i+1].y
-            yaw = np.arctan2(y2-y1, x2-x1)
-            q = quaternion_from_euler(0.0, 0.0, yaw)
+        # Winkel zwischen benahbarten Punkten
+        # for i, points in enumerate(points_3d[:-1]):
+        #     x1, y1 = points_3d[i].x, points_3d[i].y
+        #     x2, y2 = points_3d[i+1].x, points_3d[i+1].y
+        #     yaw = np.arctan2(y2-y1, x2-x1)
+        #     q = quaternion_from_euler(0.0, 0.0, yaw)
+        #     orientations[i] = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
+
+        # gewichteter, durchschnittlicher Winkel zwischen nächsten 5 Punkten
+        for i, points in enumerate(points_3d[:-5]):
+            weights = [3.0, 2.5, 2.0, 1.5, 1.0]
+            yaw_values = []
+            for j in range(5):
+                x1, y1 = points_3d[i+j].x, points_3d[i+j].y
+                x2, y2 = points_3d[i+j+1].x, points_3d[i+j+1].y
+                yaw_values.append(np.arctan2(y2 - y1, x2 - x1))
+
+            weighted_yaw = np.average(yaw_values, weights=weights)
+            q = quaternion_from_euler(0.0, 0.0, weighted_yaw)
             orientations[i] = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
-            # self.get_logger().info(f'Orientierung {orientations[i]}')
 
         q = quaternion_from_euler(0.0, 0.0, yaw1)
         orientations[-1] = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
-        # new finish
         
         path = Path()
         header = Header()
@@ -515,8 +526,7 @@ class PathPlanner(Node):
             # corresponding service was called
             return
         if self.state == State.NORMAL_OPERATION:
-            viewpoints_in_order = self.find_viewpoint_order(msg)
-            self.do_normal_operation(viewpoints_in_order)
+            self.do_normal_operation(msg)
 
     def find_first_uncompleted_viewpoint(self, viewpoints: Viewpoints):
         for i, viewpoint in enumerate(viewpoints.viewpoints):
@@ -524,11 +534,6 @@ class PathPlanner(Node):
                 return i
         # This should not happen!
         return -1
-    
-    def find_viewpoint_order(self, msg: Viewpoints):
-        viewpoints = msg.viewpoints
-        self.get_logger().info(f'{viewpoints[1].completed}')
-        return msg
 
     def on_occupancy_grid(self, msg: OccupancyGrid):
         self.occupancy_grid = msg
