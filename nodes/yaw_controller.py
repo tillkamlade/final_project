@@ -51,6 +51,9 @@ class YawController(Node):
                 self.K_D = param.value
             else:
                 return SetParametersResult(successful=False, reason='Parameter name not found')
+        
+        self.I = 0
+        
         return SetParametersResult(successful=True, reason='Parameter set')
 
     def create_pub_sub_timer(self):

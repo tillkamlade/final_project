@@ -75,6 +75,9 @@ class PositionController(Node):
                                      [0.0, 0.0, _K_D[2]]])
             else:
                 return SetParametersResult(successful=False, reason='Parameter name not found')
+            
+        self.I = 0
+        
         return SetParametersResult(successful=True, reason='Parameter set')
 
     def create_pub_sub_timer(self):
