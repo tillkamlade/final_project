@@ -77,7 +77,7 @@ class PositionController(Node):
                 return SetParametersResult(successful=False, reason='Parameter name not found')
             
         self.I = 0
-        
+
         return SetParametersResult(successful=True, reason='Parameter set')
 
     def create_pub_sub_timer(self):
@@ -128,8 +128,6 @@ class PositionController(Node):
             self.D = (errors - self.errors_prev) / (t - self.t_prev)
 
         u = self.K_P @ self.P + self.K_I @ self.I + self.K_D @ self.D
-
-        self.get_logger().info(f'u: {u}')
 
         msg = ActuatorSetpoint()
         msg.header.stamp = self.get_clock().now().to_msg()

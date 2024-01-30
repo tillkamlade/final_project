@@ -515,7 +515,8 @@ class PathPlanner(Node):
             # corresponding service was called
             return
         if self.state == State.NORMAL_OPERATION:
-            self.do_normal_operation(msg)
+            viewpoints_in_order = self.find_viewpoint_order(msg)
+            self.do_normal_operation(viewpoints_in_order)
 
     def find_first_uncompleted_viewpoint(self, viewpoints: Viewpoints):
         for i, viewpoint in enumerate(viewpoints.viewpoints):
@@ -523,6 +524,11 @@ class PathPlanner(Node):
                 return i
         # This should not happen!
         return -1
+    
+    def find_viewpoint_order(self, msg: Viewpoints):
+        viewpoints = msg.viewpoints
+        self.get_logger().info(f'{viewpoints[1].completed}')
+        return msg
 
     def on_occupancy_grid(self, msg: OccupancyGrid):
         self.occupancy_grid = msg
